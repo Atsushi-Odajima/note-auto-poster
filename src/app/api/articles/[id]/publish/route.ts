@@ -1,4 +1,3 @@
-import type { RouteContext } from 'next/dist/server/route-modules/app-route/interfaces'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -6,7 +5,7 @@ import { postArticleToNote } from '@/lib/noteApi'
 import { compare } from 'bcryptjs'
 import { loginToNote } from '@/lib/noteApi'
 
-export async function POST(req: NextRequest, ctx: RouteContext<'/api/articles/[id]/publish'>) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser()
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await ctx.params

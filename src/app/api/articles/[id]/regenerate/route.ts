@@ -1,10 +1,9 @@
-import type { RouteContext } from 'next/dist/server/route-modules/app-route/interfaces'
 import { NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateArticle, outlineToMarkdown } from '@/lib/claude'
 
-export async function POST(_req: Request, ctx: RouteContext<'/api/articles/[id]/regenerate'>) {
+export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser()
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await ctx.params
