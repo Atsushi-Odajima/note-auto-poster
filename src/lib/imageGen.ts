@@ -41,7 +41,7 @@ export async function generateImage(
     n: 1,
   })
 
-  const imageUrl = res.data[0].url
+  const imageUrl = res.data?.[0]?.url
   if (!imageUrl) throw new Error('画像URLが取得できませんでした')
 
   const ext = '.png'
