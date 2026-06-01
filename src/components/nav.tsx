@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { ScrollResetOnMount } from './scroll-reset'
 
 const links = [
   { href: '/dashboard', icon: '📊', label: '管理画面' },
@@ -48,7 +49,8 @@ export function Sidebar() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden">
+      <ScrollResetOnMount />
       <Sidebar />
       <main className="flex-1 min-w-0 md:ml-60 pt-[env(safe-area-inset-top)] pb-[calc(env(safe-area-inset-bottom)+5rem)] md:pb-0">
         {children}
