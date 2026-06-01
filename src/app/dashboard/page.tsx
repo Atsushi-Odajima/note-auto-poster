@@ -33,10 +33,10 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="px-4 sm:px-6 pt-6 pb-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">ダッシュボード</h1>
+        <h1 className="text-2xl font-bold">管理画面</h1>
         <p className="text-gray-400 text-sm mt-1">noteの自動投稿を管理</p>
       </div>
 
