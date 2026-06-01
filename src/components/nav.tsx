@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const links = [
-  { href: '/dashboard', icon: '📊', label: 'ダッシュボード' },
+  { href: '/dashboard', icon: '📊', label: '管理画面' },
   { href: '/accounts',  icon: '👤', label: 'アカウント' },
   { href: '/themes',    icon: '🗂️',  label: 'テーマ' },
   { href: '/articles',  icon: '✍️',  label: '記事' },
@@ -46,17 +46,32 @@ export function Sidebar() {
   )
 }
 
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 min-w-0 md:ml-60 pt-[env(safe-area-inset-top)] pb-[calc(env(safe-area-inset-bottom)+5rem)] md:pb-0">
+        {children}
+      </main>
+      <BottomNav />
+    </div>
+  )
+}
+
 export function BottomNav() {
   const path = usePathname()
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex z-50">
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex z-50"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       {links.map(l => (
         <Link key={l.href} href={l.href}
-          className={`flex-1 flex flex-col items-center py-2 text-xs transition-colors ${
+          className={`min-w-0 flex-1 flex flex-col items-center justify-center py-2 px-1 text-xs transition-colors ${
             path.startsWith(l.href) ? 'text-green-400' : 'text-gray-500'
           }`}>
-          <span className="text-lg">{l.icon}</span>
-          <span className="mt-0.5 text-[10px]">{l.label}</span>
+          <span className="text-lg leading-none">{l.icon}</span>
+          <span className="mt-1 text-[10px] leading-tight truncate max-w-full">{l.label}</span>
         </Link>
       ))}
     </nav>
