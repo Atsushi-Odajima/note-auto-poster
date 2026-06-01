@@ -7,7 +7,16 @@ const PUBLIC = ['/login', '/api/auth/register', '/api/auth/login']
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   if (PUBLIC.some(p => pathname.startsWith(p))) return NextResponse.next()
-  if (pathname.startsWith('/generated/') || pathname.startsWith('/_next/') || pathname === '/manifest.json') {
+  if (
+    pathname.startsWith('/generated/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/pwa/') ||
+    pathname === '/manifest.json' ||
+    pathname === '/logo.svg' ||
+    pathname === '/favicon.ico' ||
+    pathname === '/apple-icon' ||
+    pathname === '/icon'
+  ) {
     return NextResponse.next()
   }
 
