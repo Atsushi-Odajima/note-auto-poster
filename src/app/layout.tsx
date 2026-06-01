@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,9 +14,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Kuro Note",
-  description: "noteアカウントを自動運用するアプリ",
+  description: "Auto writing and posting app for note.",
   manifest: '/manifest.json',
+  icons: {
+    icon: [{ url: '/favicon.ico', sizes: 'any' }],
+    apple: '/icons/icon-192x192.png',
+  },
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Kuro Note' },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#050505',
 };
 
 export default function RootLayout({
