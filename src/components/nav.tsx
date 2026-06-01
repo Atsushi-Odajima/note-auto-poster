@@ -15,8 +15,11 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-gray-950 border-r border-gray-800 fixed left-0 top-0">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-800">
-        <img src="/logo.svg" alt="Kuro Note" className="h-10 w-auto" />
+      <div className="px-5 py-5 border-b border-gray-800 flex items-center gap-2.5">
+        <img src="/logo-mark.svg" alt="" className="w-9 h-7 shrink-0" />
+        <span className="text-2xl font-thin text-white tracking-tight whitespace-nowrap">
+          Kuro <span className="text-orange-500 font-normal">N</span>ote
+        </span>
       </div>
 
       {/* Nav */}
