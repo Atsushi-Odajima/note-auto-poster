@@ -15,16 +15,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Kuro Note",
   description: "Auto writing and posting app for note.",
-  manifest: '/manifest.json',
+  manifest: '/pwa/manifest.json',
   icons: {
-    icon: [{ url: '/favicon.ico', sizes: 'any' }],
-    apple: '/icons/icon-192x192.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/pwa/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/pwa/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/pwa/apple-touch-icon.png',
   },
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Kuro Note' },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#050505',
+  themeColor: '#000000',
 };
 
 export default function RootLayout({
