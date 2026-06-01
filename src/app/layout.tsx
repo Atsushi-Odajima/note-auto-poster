@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "note Auto Poster",
+  title: "Kuro Note",
   description: "noteアカウントを自動運用するアプリ",
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'note Auto' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Kuro Note' },
 };
 
 export default function RootLayout({

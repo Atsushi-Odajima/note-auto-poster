@@ -16,10 +16,7 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-gray-950 border-r border-gray-800 fixed left-0 top-0">
       {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-800">
-        <span className="text-xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
-          note Auto
-        </span>
-        <p className="text-xs text-gray-500 mt-0.5">自動投稿アプリ</p>
+        <img src="/logo.svg" alt="Kuro Note" className="h-10 w-auto" />
       </div>
 
       {/* Nav */}

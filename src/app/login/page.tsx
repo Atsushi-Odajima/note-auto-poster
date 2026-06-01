@@ -28,11 +28,9 @@ export default function LoginPage() {
     <div className="w-full max-w-sm px-4">
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-500/20 mb-4 text-3xl">
-          📝
-        </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
-          note Auto Poster
+        <img src="/logo-mark.svg" alt="Kuro Note" className="w-20 h-16 mx-auto mb-4" />
+        <h1 className="text-3xl font-light text-white tracking-tight">
+          Kuro <span className="text-orange-500 font-medium">N</span>ote
         </h1>
         <p className="text-gray-500 text-sm mt-1">noteを自動で運用</p>
       </div>
