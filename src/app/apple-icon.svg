@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><rect width="1024" height="1024" fill="#000"/><rect x="62" y="62" width="900" height="900" rx="150" fill="none" stroke="#fff" stroke-width="10"/><path d="M183 370 L183 800 L470 755 M841 370 L841 800 L554 755" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M235 330 C340 255 455 275 512 350 C569 275 684 255 789 330 M235 330 L235 740 M789 330 L789 740" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M235 740 C345 690 450 705 512 780 C574 705 679 690 789 740" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M470 790 L470 815 L554 815 L554 790" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M512 330 L512 398 M512 675 L512 760" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/><text x="310" y="535" font-family="monospace" font-size="52" fill="#fff">class </text><text x="498" y="535" font-family="monospace" font-size="52" fill="#ff8500">Auto</text><text x="392" y="635" font-family="monospace" font-size="50" fill="#fff">public static...</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#000000"/>
+  <rect x="78" y="70" width="868" height="872" rx="145" fill="none" stroke="#ffffff" stroke-width="10"/>
+  <g fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M205 350 L205 748 L445 712"/>
+    <path d="M819 350 L819 748 L579 712"/>
+    <path d="M250 315 L250 705"/>
+    <path d="M774 315 L774 705"/>
+    <path d="M250 315 C350 260 452 265 512 342 C572 265 674 260 774 315"/>
+    <path d="M250 705 C355 660 455 670 512 742 C569 670 669 660 774 705"/>
+    <path d="M445 742 L445 766 L579 766 L579 742"/>
+    <path d="M512 318 L512 390"/>
+    <path d="M512 610 L512 730"/>
+  </g>
+  <text x="300" y="470" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="43" fill="#ffffff">class </text>
+  <text x="458" y="470" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="43" fill="#ff8500">Auto</text>
+  <text x="335" y="545" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="39" fill="#ffffff">public static...</text>
+</svg>

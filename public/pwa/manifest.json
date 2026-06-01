@@ -1,6 +1,7 @@
 {
   "name": "Kuro Note",
   "short_name": "Kuro Note",
+  "description": "Kuro Note PWA assets",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#000000",

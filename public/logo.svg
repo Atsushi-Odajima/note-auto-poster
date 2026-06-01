@@ -1,1 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 512"><rect width="1600" height="512" fill="#000"/><g transform="translate(70 65)"><path d="M25 95 L25 330 L180 305 M395 95 L395 330 L240 305" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 70 C130 25 185 35 210 90 C235 35 290 25 360 70 M60 70 L60 295 M360 70 L360 295" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 295 C130 260 185 270 210 330 C235 270 290 260 360 295" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M210 75 L210 113 M210 260 L210 320" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><text x="85" y="168" font-family="monospace" font-size="28" fill="#fff">class </text><text x="180" y="168" font-family="monospace" font-size="28" fill="#ff8500">Auto</text><text x="120" y="218" font-family="monospace" font-size="28" fill="#fff">public static...</text></g><text x="560" y="285" font-family="Arial, sans-serif" font-size="118" fill="#fff">Kuro </text><text x="915" y="285" font-family="Arial, sans-serif" font-size="118" fill="#ff8500">N</text><text x="1005" y="285" font-family="Arial, sans-serif" font-size="118" fill="#fff">ote</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 520">
+  <rect width="1800" height="520" fill="#000000"/>
+  <g transform="translate(95 70)" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M25 110 L25 330 L195 305"/>
+    <path d="M440 110 L440 330 L270 305"/>
+    <path d="M65 90 L65 290"/>
+    <path d="M400 90 L400 290"/>
+    <path d="M65 90 C140 45 205 50 232 110 C259 50 325 45 400 90"/>
+    <path d="M65 290 C145 255 205 265 232 322 C259 265 320 255 400 290"/>
+    <path d="M232 92 L232 140"/>
+    <path d="M232 250 L232 315"/>
+  </g>
+  <text x="185" y="235" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="34" fill="#ffffff">class </text>
+  <text x="300" y="235" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="34" fill="#ff8500">Auto</text>
+  <text x="225" y="285" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="31" fill="#ffffff">public static...</text>
+  <text x="620" y="315" font-family="Arial, Helvetica, sans-serif" font-size="126" fill="#ffffff" letter-spacing="0">Kuro </text>
+  <text x="960" y="315" font-family="Arial, Helvetica, sans-serif" font-size="126" fill="#ff8500" letter-spacing="0">N</text>
+  <text x="1048" y="315" font-family="Arial, Helvetica, sans-serif" font-size="126" fill="#ffffff" letter-spacing="0">ote</text>
+</svg>
