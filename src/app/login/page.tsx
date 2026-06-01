@@ -28,11 +28,11 @@ export default function LoginPage() {
     <div className="w-full max-w-sm px-4">
       {/* Logo */}
       <div className="text-center mb-8">
-        <img src="/logo-mark.svg" alt="Kuro Note" className="w-20 h-16 mx-auto mb-4" />
-        <h1 className="text-3xl font-light text-white tracking-tight">
-          Kuro <span className="text-orange-500 font-medium">N</span>ote
+        <img src="/logo-mark.svg" alt="" className="w-24 h-20 mx-auto mb-4" />
+        <h1 className="text-4xl font-thin text-white tracking-tight">
+          Kuro <span className="text-orange-500 font-normal">N</span>ote
         </h1>
-        <p className="text-gray-500 text-sm mt-1">noteを自動で運用</p>
+        <p className="text-gray-500 text-sm mt-2">noteを自動で運用</p>
       </div>
 
       <form onSubmit={submit} className="bg-gray-900 rounded-2xl border border-gray-800 p-6 space-y-4">
