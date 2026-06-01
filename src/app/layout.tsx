@@ -25,10 +25,16 @@ export const metadata: Metadata = {
     apple: '/pwa/apple-touch-icon.png',
   },
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Kuro Note' },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: '#000000',
+  viewportFit: 'cover',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
