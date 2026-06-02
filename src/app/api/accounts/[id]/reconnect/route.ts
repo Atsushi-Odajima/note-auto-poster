@@ -31,6 +31,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     const { passwordHash, ...safe } = updated
     return NextResponse.json({ ok: true, account: safe })
   } catch (e) {
-    return NextResponse.json({ error: `note.com ログイン失敗: ${String(e)}` }, { status: 400 })
+    const msg = e instanceof Error ? e.message : String(e)
+    return NextResponse.json({ error: `note.com ログイン失敗: ${msg}` }, { status: 400 })
   }
 }

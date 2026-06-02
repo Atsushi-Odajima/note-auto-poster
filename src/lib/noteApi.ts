@@ -6,6 +6,8 @@
 const BASE = 'https://note.com'
 const API  = 'https://note.com/api'
 
+const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+
 export interface NoteSession {
   sessionCookie: string
   urlname: string
@@ -22,32 +24,49 @@ export interface NotePostResult {
 
 /**
  * note.com にメール/パスワードでログインしてセッションクッキーを取得
+ *
+ * 2ステップ:
+ *   1) GET /login で `_note_session_v5` などの初期 Cookie を取得
+ *   2) その Cookie を載せて POST /api/v1/sessions
  */
 export async function loginToNote(email: string, password: string): Promise<NoteSession> {
+  // 1. 初期 Cookie 取得
+  const initRes = await fetch(`${BASE}/login`, {
+    method: 'GET',
+    headers: { 'User-Agent': UA, 'Accept': 'text/html' },
+    redirect: 'manual',
+  })
+  const initCookieHeader = buildCookieHeader(getSetCookies(initRes))
+
+  // 2. セッション POST
   const res = await fetch(`${API}/v1/sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'application/json',
+      'User-Agent': UA,
       'Referer': `${BASE}/login`,
       'Origin': BASE,
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(initCookieHeader ? { 'Cookie': initCookieHeader } : {}),
     },
     body: JSON.stringify({ login: email, password }),
   })
 
   if (!res.ok) {
-    const err = await res.text().catch(() => res.statusText)
-    throw new Error(`note.com ログイン失敗: ${err}`)
+    const text = await res.text().catch(() => '')
+    throw new Error(`HTTP ${res.status} ${res.statusText}${text ? ` — ${text.slice(0, 300)}` : ''}`)
   }
 
-  const setCookie = res.headers.get('set-cookie') ?? ''
-  const cookieToken = extractSessionCookie(setCookie)
+  // 認証後の Cookie を初期 Cookie とマージ
+  const loginCookies = getSetCookies(res)
+  const mergedCookieHeader = mergeCookieHeaders(initCookieHeader, buildCookieHeader(loginCookies))
 
-  const data = await res.json()
+  const data: any = await res.json().catch(() => ({}))
   const user = data?.data?.user ?? data?.user ?? {}
 
   return {
-    sessionCookie: cookieToken,
+    sessionCookie: mergedCookieHeader,
     urlname: user.urlname ?? user.nickname ?? email.split('@')[0],
     displayName: user.nickname ?? user.urlname ?? email.split('@')[0],
     avatarUrl: user.userProfileImagePath,
@@ -69,7 +88,7 @@ export async function postArticleToNote(
     headers: {
       'Content-Type': 'application/json',
       'Cookie': sessionCookie,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'User-Agent': UA,
       'Referer': `${BASE}/n/new`,
       'Origin': BASE,
       'X-Requested-With': 'XMLHttpRequest',
@@ -109,7 +128,7 @@ export async function postArticleToNote(
     headers: {
       'Content-Type': 'application/json',
       'Cookie': sessionCookie,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'User-Agent': UA,
       'Referer': `${BASE}/n/${noteId}/edit`,
       'Origin': BASE,
       'X-Requested-With': 'XMLHttpRequest',
@@ -137,7 +156,7 @@ export async function verifyNoteSession(sessionCookie: string): Promise<boolean>
     const res = await fetch(`${API}/v1/me`, {
       headers: {
         'Cookie': sessionCookie,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'User-Agent': UA,
       },
     })
     return res.ok
@@ -146,13 +165,39 @@ export async function verifyNoteSession(sessionCookie: string): Promise<boolean>
   }
 }
 
-function extractSessionCookie(setCookieHeader: string): string {
-  // 複数のSet-Cookieを ; で結合してリクエスト用クッキー文字列を生成
-  const cookies: string[] = []
-  const parts = setCookieHeader.split(/,(?=[^ ])/)
-  for (const part of parts) {
-    const nameVal = part.split(';')[0].trim()
-    if (nameVal) cookies.push(nameVal)
+// ─── helpers ──────────────────────────────────────────────────────
+
+function getSetCookies(res: Response): string[] {
+  // Node fetch: getSetCookie() を優先、なければ get('set-cookie') を split
+  const hdrs = res.headers as any
+  if (typeof hdrs.getSetCookie === 'function') {
+    const list: string[] = hdrs.getSetCookie()
+    return list ?? []
   }
-  return cookies.join('; ')
+  const raw = res.headers.get('set-cookie') ?? ''
+  if (!raw) return []
+  // 値内のカンマと Set-Cookie 区切りのカンマを区別
+  return raw.split(/,(?=[^ ;]+=)/)
+}
+
+function buildCookieHeader(setCookies: string[]): string {
+  const pairs: string[] = []
+  for (const sc of setCookies) {
+    const head = sc.split(';')[0].trim()
+    if (head) pairs.push(head)
+  }
+  return pairs.join('; ')
+}
+
+function mergeCookieHeaders(a: string, b: string): string {
+  if (!a) return b
+  if (!b) return a
+  // 後勝ち (b が新しい)
+  const map = new Map<string, string>()
+  for (const part of [...a.split('; '), ...b.split('; ')]) {
+    const i = part.indexOf('=')
+    if (i < 0) continue
+    map.set(part.slice(0, i), part.slice(i + 1))
+  }
+  return Array.from(map.entries()).map(([k, v]) => `${k}=${v}`).join('; ')
 }

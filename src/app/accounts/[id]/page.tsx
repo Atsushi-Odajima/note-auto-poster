@@ -168,7 +168,7 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
             <input type="password" value={reconnectPassword} onChange={e => setReconnectPassword(e.target.value)} required
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
           </div>
-          {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2">{error}</p>}
+          {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2 break-words whitespace-pre-wrap">{error}</p>}
           <div className="flex gap-2">
             <button type="submit" disabled={reconnecting}
               className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
