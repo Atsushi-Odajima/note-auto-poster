@@ -157,11 +157,40 @@ export async function verifyNoteSession(sessionCookie: string): Promise<boolean>
       headers: {
         'Cookie': sessionCookie,
         'User-Agent': UA,
+        'Accept': 'application/json',
+        'Referer': BASE,
       },
     })
     return res.ok
   } catch {
     return false
+  }
+}
+
+/**
+ * 与えられたセッション Cookie から note.com のユーザープロフィールを取得
+ */
+export async function fetchNoteProfile(sessionCookie: string): Promise<{ urlname: string; displayName: string; avatarUrl?: string } | null> {
+  try {
+    const res = await fetch(`${API}/v1/me`, {
+      headers: {
+        'Cookie': sessionCookie,
+        'User-Agent': UA,
+        'Accept': 'application/json',
+        'Referer': BASE,
+      },
+    })
+    if (!res.ok) return null
+    const data: any = await res.json()
+    const user = data?.data?.user ?? data?.user ?? data?.data ?? data
+    if (!user) return null
+    return {
+      urlname: user.urlname ?? user.nickname ?? '',
+      displayName: user.nickname ?? user.urlname ?? '',
+      avatarUrl: user.userProfileImagePath ?? user.profile_image_path,
+    }
+  } catch {
+    return null
   }
 }
 

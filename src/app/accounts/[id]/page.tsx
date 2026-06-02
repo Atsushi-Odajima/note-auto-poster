@@ -16,6 +16,10 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
   const [showReconnect, setShowReconnect] = useState(false)
   const [reconnectPassword, setReconnectPassword] = useState('')
 
+  const [showCookie, setShowCookie] = useState(false)
+  const [cookieValue, setCookieValue] = useState('')
+  const [cookieSaving, setCookieSaving] = useState(false)
+
   useEffect(() => {
     fetch(`/api/accounts/${id}`).then(r => r.json()).then(d => {
       setAccount(d)
@@ -51,6 +55,22 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
     setReconnectPassword('')
     setShowReconnect(false)
     setReconnecting(false)
+  }
+
+  async function submitCookie(e: React.FormEvent) {
+    e.preventDefault()
+    setCookieSaving(true); setError('')
+    const res = await fetch(`/api/accounts/${id}/set-cookie`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cookie: cookieValue }),
+    })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error ?? 'エラー'); setCookieSaving(false); return }
+    setAccount(data.account)
+    setCookieValue('')
+    setShowCookie(false)
+    setCookieSaving(false)
   }
 
   async function remove() {
@@ -108,9 +128,13 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
             className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             {editing ? 'キャンセル' : '編集'}
           </button>
-          <button onClick={() => setShowReconnect(s => !s)}
+          <button onClick={() => { setShowCookie(s => !s); setShowReconnect(false) }}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-            {account.sessionToken ? '🔄 再連携' : '🔗 連携'}
+            🍪 Cookie で連携
+          </button>
+          <button onClick={() => { setShowReconnect(s => !s); setShowCookie(false) }}
+            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors">
+            🔑 パスワードで連携
           </button>
           <button onClick={remove}
             className="ml-auto text-red-400 hover:text-red-300 text-sm px-3 py-2 transition-colors">
@@ -156,12 +180,43 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* 連携/再連携フォーム */}
+      {/* Cookie 貼り付け（推奨） */}
+      {showCookie && (
+        <form onSubmit={submitCookie} className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">🍪 Cookie で連携（推奨）</h2>
+          <details className="text-xs text-gray-400 bg-gray-950 border border-gray-800 rounded-lg p-3">
+            <summary className="cursor-pointer text-gray-300">取得手順を表示</summary>
+            <ol className="list-decimal list-inside mt-2 space-y-1 text-gray-400">
+              <li>PC ブラウザで <span className="text-gray-200">note.com</span> にログインする</li>
+              <li>キーボードで <span className="font-mono text-gray-200">F12</span> を押して開発者ツールを開く</li>
+              <li>「アプリケーション」→「Cookie」→「https://note.com」を選択</li>
+              <li><span className="font-mono text-gray-200">_note_session_v5</span> という行の「値」をコピー</li>
+              <li>下の欄に <span className="font-mono text-gray-200">_note_session_v5=コピーした値</span> の形で貼り付け</li>
+            </ol>
+            <p className="text-gray-500 mt-2">複数の Cookie を貼る場合は <span className="font-mono">名前=値; 名前=値</span> のようにセミコロン区切り。</p>
+          </details>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Cookie</label>
+            <textarea value={cookieValue} onChange={e => setCookieValue(e.target.value)} required
+              rows={3} placeholder="_note_session_v5=xxxxx..."
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-green-500 resize-none" />
+          </div>
+          {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2 break-words whitespace-pre-wrap">{error}</p>}
+          <div className="flex gap-2">
+            <button type="submit" disabled={cookieSaving}
+              className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
+              {cookieSaving ? '検証中...' : '連携実行'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* パスワード連携（非推奨フォールバック） */}
       {showReconnect && (
         <form onSubmit={reconnect} className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{account.sessionToken ? 'セッション再取得' : 'note.com に連携'}</h2>
-          <p className="text-xs text-gray-500">
-            note.com のパスワードを入力してください。セッショントークンを再取得します。
+          <h2 className="font-semibold text-sm">🔑 パスワードで連携</h2>
+          <p className="text-xs text-yellow-400/80 bg-yellow-500/10 rounded px-3 py-2">
+            ⚠️ note.com 側で公式パスワード API が廃止されており、この方法は <span className="font-semibold">404 で失敗する可能性が高い</span>です。失敗した場合は上の「🍪 Cookie で連携」をお使いください。
           </p>
           <div>
             <label className="block text-xs text-gray-400 mb-1">パスワード</label>
@@ -171,8 +226,8 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
           {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2 break-words whitespace-pre-wrap">{error}</p>}
           <div className="flex gap-2">
             <button type="submit" disabled={reconnecting}
-              className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
-              {reconnecting ? '連携中...' : '連携実行'}
+              className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
+              {reconnecting ? '連携中...' : '試す'}
             </button>
           </div>
         </form>
