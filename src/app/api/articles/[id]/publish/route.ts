@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { postArticleToNote } from '@/lib/noteApi'
 import { compare } from 'bcryptjs'
 import { loginToNote } from '@/lib/noteApi'
+import { decryptSecret } from '@/lib/secrets'
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser()
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 
   try {
     // セッション確認・更新
-    let sessionToken = account.sessionToken ?? ''
+    let sessionToken = decryptSecret(account.sessionToken)
     if (!sessionToken || (account.tokenExpiry && account.tokenExpiry < new Date())) {
       // 再ログイン
       const { createDecipheriv, randomBytes } = await import('crypto')

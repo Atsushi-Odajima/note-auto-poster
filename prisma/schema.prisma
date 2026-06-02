@@ -33,6 +33,18 @@ model NoteAccount {
   createdAt    DateTime  @default(now())
 
   articles Article[]
+  cookieSyncTokens CookieSyncToken[]
+}
+
+model CookieSyncToken {
+  id        String      @id @default(cuid())
+  tokenHash String      @unique
+  userId    String
+  accountId String
+  account   NoteAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime    @default(now())
 }
 
 model Theme {

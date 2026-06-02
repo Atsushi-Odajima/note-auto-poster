@@ -3,15 +3,18 @@ import { hash } from 'bcryptjs'
 import { getAuthUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { loginToNote } from '@/lib/noteApi'
+import { encryptSecret, safeAccount } from '@/lib/secrets'
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const auth = await getAuthUser()
   if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { id } = await ctx.params
   const account = await prisma.noteAccount.findUnique({ where: { id } })
   if (!account || account.userId !== auth.userId) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
+
   const { password } = await req.json().catch(() => ({}))
   if (!password) return NextResponse.json({ error: 'パスワードを入力してください' }, { status: 400 })
 
@@ -23,13 +26,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         urlname: session.urlname,
         displayName: session.displayName,
         avatarUrl: session.avatarUrl,
-        sessionToken: session.sessionCookie,
+        sessionToken: encryptSecret(session.sessionCookie),
         tokenExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         passwordHash: await hash(password, 10),
       },
     })
-    const { passwordHash, ...safe } = updated
-    return NextResponse.json({ ok: true, account: safe })
+    return NextResponse.json({ ok: true, account: safeAccount(updated) })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     return NextResponse.json({ error: `note.com ログイン失敗: ${msg}` }, { status: 400 })
