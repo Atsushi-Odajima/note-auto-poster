@@ -19,6 +19,7 @@ export default function NewAccountPage() {
     })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'エラー'); setSaving(false); return }
+    try { sessionStorage.setItem('accounts:lastCreated', JSON.stringify(data)) } catch {}
     router.push('/accounts')
   }
 

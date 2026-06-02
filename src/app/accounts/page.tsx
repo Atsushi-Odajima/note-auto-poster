@@ -4,10 +4,21 @@ import Link from 'next/link'
 import { getCategory } from '@/lib/categories'
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState<any[]>([])
+  const [accounts, setAccounts] = useState<any[] | null>(null)
 
   useEffect(() => {
-    fetch('/api/accounts').then(r => r.json()).then(setAccounts)
+    // /accounts/new で作成したばかりのアカウントがあれば即座に表示
+    let initial: any[] | null = null
+    try {
+      const cached = sessionStorage.getItem('accounts:lastCreated')
+      if (cached) {
+        initial = [JSON.parse(cached)]
+        sessionStorage.removeItem('accounts:lastCreated')
+        setAccounts(initial)
+      }
+    } catch {}
+
+    fetch('/api/accounts').then(r => r.json()).then(setAccounts).catch(() => setAccounts([]))
   }, [])
 
   return (
@@ -23,7 +34,14 @@ export default function AccountsPage() {
         </Link>
       </div>
 
-      {accounts.length === 0
+      {accounts === null
+        ? (
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
+            <div className="inline-block w-6 h-6 border-2 border-gray-600 border-t-green-400 rounded-full animate-spin mb-3" />
+            <p className="text-gray-400 text-sm">読み込み中...</p>
+          </div>
+        )
+        : accounts.length === 0
         ? (
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
             <div className="text-4xl mb-3">👤</div>
