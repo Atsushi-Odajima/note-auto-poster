@@ -26,6 +26,7 @@ model NoteAccount {
   urlname      String?
   displayName  String?
   avatarUrl    String?
+  category     String?
   sessionToken String?
   tokenExpiry  DateTime?
   isActive     Boolean   @default(true)
