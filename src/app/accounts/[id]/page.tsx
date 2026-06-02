@@ -20,6 +20,10 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
   const [cookieValue, setCookieValue] = useState('')
   const [cookieSaving, setCookieSaving] = useState(false)
 
+  const [showPCSync, setShowPCSync] = useState(false)
+  const [captureToken, setCaptureToken] = useState<string | null>(null)
+  const [tokenIssuing, setTokenIssuing] = useState(false)
+
   useEffect(() => {
     fetch(`/api/accounts/${id}`).then(r => r.json()).then(d => {
       setAccount(d)
@@ -73,10 +77,23 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
     setCookieSaving(false)
   }
 
+  async function issueCaptureToken() {
+    setTokenIssuing(true); setError('')
+    const res = await fetch(`/api/accounts/${id}/capture-token`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error ?? 'エラー'); setTokenIssuing(false); return }
+    setCaptureToken(data.token)
+    setTokenIssuing(false)
+  }
+
   async function remove() {
     if (!confirm('このアカウントを削除しますか？')) return
     await fetch(`/api/accounts/${id}`, { method: 'DELETE' })
     router.push('/accounts')
+  }
+
+  function copy(text: string) {
+    try { navigator.clipboard.writeText(text) } catch {}
   }
 
   if (!account) return (
@@ -128,11 +145,15 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
             className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             {editing ? 'キャンセル' : '編集'}
           </button>
-          <button onClick={() => { setShowCookie(s => !s); setShowReconnect(false) }}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-            🍪 Cookie で連携
+          <button onClick={() => { setShowPCSync(s => !s); setShowCookie(false); setShowReconnect(false) }}
+            className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+            🖥 PC スクリプト連携
           </button>
-          <button onClick={() => { setShowReconnect(s => !s); setShowCookie(false) }}
+          <button onClick={() => { setShowCookie(s => !s); setShowPCSync(false); setShowReconnect(false) }}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+            🍪 Cookie を貼り付け
+          </button>
+          <button onClick={() => { setShowReconnect(s => !s); setShowPCSync(false); setShowCookie(false) }}
             className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors">
             🔑 パスワードで連携
           </button>
@@ -177,6 +198,72 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
               {saving ? '保存中...' : '保存'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* PC スクリプト連携 (最推奨) */}
+      {showPCSync && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-3 mb-4">
+          <h2 className="font-semibold text-sm">🖥 PC スクリプト連携（最推奨・スマホ完結に最も近い方法）</h2>
+          <p className="text-xs text-gray-400">
+            自宅 PC の <span className="font-mono text-gray-200">Chrome</span> で note.com にログインして
+            Cookie を自動取得するスクリプトを使う方式です。下のトークンを PC に送れば、
+            スマホでの操作は終わり。あとは PC でコマンド 1 行実行するだけ。
+          </p>
+
+          <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 text-xs text-gray-400 space-y-1">
+            <p className="text-gray-300 font-semibold mb-1">📋 セットアップ (PC 側、1 回だけ)</p>
+            <ol className="list-decimal list-inside space-y-0.5">
+              <li>リポジトリの <span className="font-mono text-gray-200">scripts/note_cookie_sync/</span> を取得</li>
+              <li><span className="font-mono text-gray-200">pip install -r requirements.txt</span></li>
+              <li><span className="font-mono text-gray-200">playwright install chromium</span></li>
+            </ol>
+          </div>
+
+          {!captureToken ? (
+            <button onClick={issueCaptureToken} disabled={tokenIssuing}
+              className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
+              {tokenIssuing ? '発行中...' : 'ワンタイムトークン発行 (1時間有効)'}
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">sync URL</label>
+                <div className="flex gap-1">
+                  <input readOnly value={typeof window !== 'undefined' ? `${window.location.origin}/api/sync-cookie` : ''}
+                    className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs font-mono" />
+                  <button onClick={() => copy(`${window.location.origin}/api/sync-cookie`)}
+                    className="bg-gray-700 hover:bg-gray-600 px-3 rounded-lg text-xs">コピー</button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">token (1時間有効)</label>
+                <div className="flex gap-1">
+                  <input readOnly value={captureToken}
+                    className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-xs font-mono" />
+                  <button onClick={() => copy(captureToken)}
+                    className="bg-gray-700 hover:bg-gray-600 px-3 rounded-lg text-xs">コピー</button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">PC で実行するコマンド</label>
+                <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 text-xs font-mono text-gray-200 break-all whitespace-pre-wrap">
+{`python capture_and_sync.py \\
+  --sync-url "${typeof window !== 'undefined' ? window.location.origin : ''}/api/sync-cookie" \\
+  --token "${captureToken}" \\
+  --email "note.com のメール"`}
+                </div>
+                <button onClick={() => copy(`python capture_and_sync.py --sync-url "${window.location.origin}/api/sync-cookie" --token "${captureToken}" --email "note.com のメール"`)}
+                  className="mt-2 bg-gray-700 hover:bg-gray-600 text-xs px-3 py-1.5 rounded-lg">コマンド全体をコピー</button>
+              </div>
+              <p className="text-xs text-gray-500">
+                上の sync URL と token (or コマンド全体) を PC に送ってください (メール / Slack 自分宛 etc.)。
+                PC で実行すると Chrome が開き、ログイン後に自動で Cookie が同期されます。
+              </p>
+            </div>
+          )}
+
+          {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2 break-words">{error}</p>}
         </div>
       )}
 
