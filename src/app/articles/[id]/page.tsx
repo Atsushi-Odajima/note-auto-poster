@@ -75,6 +75,21 @@ export default function ArticleDetailPage() {
     setGeneratingImages(false)
   }
 
+  async function queueForBookmarklet() {
+    const res = await fetch(`/api/articles/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'READY' }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setArticle(data)
+      alert('✅ 公開キューに追加しました。Safari で note.com を開き、ブックマークレットをタップしてください。')
+    } else {
+      alert('❌ 失敗しました')
+    }
+  }
+
   async function regenerate() {
     if (!confirm('記事をAIで再生成しますか？現在の内容は上書きされます。')) return
     setRegenerating(true)
@@ -166,10 +181,21 @@ export default function ArticleDetailPage() {
                   className="bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 px-3 py-1.5 rounded-lg text-xs transition-colors disabled:opacity-50">
                   {regenerating ? '生成中...' : '🤖 再生成'}
                 </button>
+                {article.status === 'DRAFT' && (
+                  <button onClick={queueForBookmarklet}
+                    className="bg-green-500/20 hover:bg-green-500/40 text-green-400 px-3 py-1.5 rounded-lg text-xs transition-colors">
+                    ✅ 公開キューに追加
+                  </button>
+                )}
+                {article.status === 'READY' && (
+                  <span className="bg-green-500/20 text-green-400 px-3 py-1.5 rounded-lg text-xs">
+                    📤 キュー入り済み (Safari で Bookmarklet をタップ)
+                  </span>
+                )}
                 {['READY', 'DRAFT'].includes(article.status) && (
                   <button onClick={() => setShowPublishModal(true)}
                     className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-400 hover:to-teal-400 text-white px-4 py-1.5 rounded-lg text-xs font-medium transition-all">
-                    🚀 投稿
+                    🚀 サーバー投稿
                   </button>
                 )}
                 {article.noteUrl && (

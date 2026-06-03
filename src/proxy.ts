@@ -11,6 +11,7 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/generated/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/pwa/') ||
+    pathname.startsWith('/api/bookmarklet/') ||
     pathname === '/manifest.json' ||
     pathname === '/logo.svg' ||
     pathname === '/favicon.ico' ||

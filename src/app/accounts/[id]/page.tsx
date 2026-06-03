@@ -24,6 +24,10 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
   const [captureToken, setCaptureToken] = useState<string | null>(null)
   const [tokenIssuing, setTokenIssuing] = useState(false)
 
+  const [showBookmarklet, setShowBookmarklet] = useState(false)
+  const [bookmarklet, setBookmarklet] = useState<{ code: string; days: number } | null>(null)
+  const [bmIssuing, setBmIssuing] = useState(false)
+
   useEffect(() => {
     fetch(`/api/accounts/${id}`).then(r => r.json()).then(d => {
       setAccount(d)
@@ -86,6 +90,15 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
     setTokenIssuing(false)
   }
 
+  async function issueBookmarklet() {
+    setBmIssuing(true); setError('')
+    const res = await fetch(`/api/accounts/${id}/bookmarklet-token`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error ?? 'エラー'); setBmIssuing(false); return }
+    setBookmarklet({ code: data.bookmarklet, days: data.expiresInDays })
+    setBmIssuing(false)
+  }
+
   async function remove() {
     if (!confirm('このアカウントを削除しますか？')) return
     await fetch(`/api/accounts/${id}`, { method: 'DELETE' })
@@ -145,15 +158,19 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
             className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             {editing ? 'キャンセル' : '編集'}
           </button>
-          <button onClick={() => { setShowPCSync(s => !s); setShowCookie(false); setShowReconnect(false) }}
+          <button onClick={() => { setShowBookmarklet(s => !s); setShowPCSync(false); setShowCookie(false); setShowReconnect(false) }}
             className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+            📌 iPhone 完結投稿
+          </button>
+          <button onClick={() => { setShowPCSync(s => !s); setShowBookmarklet(false); setShowCookie(false); setShowReconnect(false) }}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
             🖥 PC スクリプト連携
           </button>
-          <button onClick={() => { setShowCookie(s => !s); setShowPCSync(false); setShowReconnect(false) }}
+          <button onClick={() => { setShowCookie(s => !s); setShowBookmarklet(false); setShowPCSync(false); setShowReconnect(false) }}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
             🍪 Cookie を貼り付け
           </button>
-          <button onClick={() => { setShowReconnect(s => !s); setShowPCSync(false); setShowCookie(false) }}
+          <button onClick={() => { setShowReconnect(s => !s); setShowBookmarklet(false); setShowPCSync(false); setShowCookie(false) }}
             className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors">
             🔑 パスワードで連携
           </button>
@@ -198,6 +215,65 @@ export default function AccountDetailPage({ params }: { params: Promise<{ id: st
               {saving ? '保存中...' : '保存'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* iPhone 完結 Bookmarklet (Phase 1) */}
+      {showBookmarklet && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-3 mb-4">
+          <h2 className="font-semibold text-sm">📌 iPhone 完結投稿 (Bookmarklet 方式)</h2>
+          <p className="text-xs text-gray-400">
+            note.com 側のセッションを Safari がそのまま使うので、Cookie 保存が不要・無料・iPhone のみで完結します。
+            記事は「公開キューに追加」したものから順に投稿されます (1 タップ = 1 記事)。
+          </p>
+
+          {!bookmarklet ? (
+            <button onClick={issueBookmarklet} disabled={bmIssuing}
+              className="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors">
+              {bmIssuing ? '生成中...' : 'Bookmarklet を生成 (90日有効)'}
+            </button>
+          ) : (
+            <div className="space-y-3">
+              <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 text-xs text-gray-400 space-y-1.5">
+                <p className="text-gray-300 font-semibold">📋 Safari への登録 (初回 1 回だけ)</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>下の <span className="text-gray-200 font-semibold">Bookmarklet コード</span> を <span className="text-green-400">「コピー」</span></li>
+                  <li>Safari で <span className="font-mono text-gray-200">about:blank</span> など適当なページを開く</li>
+                  <li>共有ボタン → <span className="text-gray-200">「ブックマークに追加」</span> → 名前を <span className="font-mono text-gray-200">📤 Kuro Note 投稿</span> 等にして保存</li>
+                  <li>Safari 下部のブックマークアイコン → 編集 → 今作成したブックマークをタップ</li>
+                  <li>URL 欄を全削除して、コピーした Bookmarklet コードを<span className="text-yellow-300">そのまま貼り付け</span> → 完了</li>
+                  <li>そのブックマークを <span className="text-gray-200">「お気に入り」</span> に移動しておくと毎回 1 タップで呼べる</li>
+                </ol>
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Bookmarklet コード ({bookmarklet.days} 日有効)</label>
+                <textarea readOnly value={bookmarklet.code} rows={5}
+                  onClick={e => (e.target as HTMLTextAreaElement).select()}
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-[10px] font-mono break-all resize-none" />
+                <button onClick={() => copy(bookmarklet.code)}
+                  className="mt-2 bg-green-500 hover:bg-green-400 text-white text-xs px-3 py-2 rounded-lg">
+                  📋 コードを全文コピー
+                </button>
+              </div>
+
+              <div className="bg-gray-950 border border-gray-800 rounded-lg p-3 text-xs text-gray-400 space-y-1.5">
+                <p className="text-gray-300 font-semibold">🚀 毎回の投稿フロー (登録後)</p>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Kuro Note で記事を生成 → 詳細画面で <span className="text-green-400">「✅ 公開キューに追加」</span></li>
+                  <li>Safari で <span className="font-mono text-gray-200">note.com</span> を開く (ログイン済みの状態)</li>
+                  <li>Safari のお気に入り → <span className="font-mono text-gray-200">📤 Kuro Note 投稿</span> をタップ</li>
+                  <li>キューの先頭記事が note.com に自動投稿される (画面右下に進捗表示)</li>
+                </ol>
+              </div>
+
+              <p className="text-xs text-yellow-400/80 bg-yellow-500/10 rounded px-3 py-2">
+                ⚠️ Bookmarklet コードには本人専用の長期トークンが含まれます。他人に共有しないでください。漏れた場合は同じボタンから再発行 (古いものは無効に出来ないので、必要なら全パスワードリセット推奨)。
+              </p>
+            </div>
+          )}
+
+          {error && <p className="text-red-400 text-xs bg-red-500/10 rounded px-3 py-2 break-words">{error}</p>}
         </div>
       )}
 
